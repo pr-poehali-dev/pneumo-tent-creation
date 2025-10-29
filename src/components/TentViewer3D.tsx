@@ -53,121 +53,129 @@ const TentViewer3D = () => {
         };
       };
 
-      const ellipsoidPoint = (xNorm: number, zNorm: number) => {
-        const x = xNorm * tentLength / 2;
-        const z = zNorm * tentWidth / 2;
+      const numArcs = 13;
+      const arcSpacing = tentLength / (numArcs - 1);
+
+      for (let arcIdx = 0; arcIdx < numArcs; arcIdx++) {
+        const xPos = -tentLength / 2 + arcIdx * arcSpacing;
+        const distFromCenter = Math.abs(xPos) / (tentLength / 2);
+        const arcAngle = (1 - distFromCenter) * (Math.PI / 2.5);
         
-        const xSq = (xNorm * xNorm);
-        const zSq = (zNorm * zNorm);
-        const sum = xSq + zSq;
-        
-        if (sum > 1) return { x, y: 0, z };
-        
-        const yNorm = Math.sqrt(1 - sum);
-        const y = -yNorm * tentHeight;
-        
-        return { x, y, z };
-      };
-
-      const numLongitudinal = 13;
-      const numLatitudinal = 10;
-
-      for (let i = 0; i < numLongitudinal - 1; i++) {
-        for (let j = 0; j < numLatitudinal; j++) {
-          const xNorm1 = -1 + (2 * i) / (numLongitudinal - 1);
-          const xNorm2 = -1 + (2 * (i + 1)) / (numLongitudinal - 1);
-          const zNorm1 = -1 + (2 * j) / numLatitudinal;
-          const zNorm2 = -1 + (2 * (j + 1)) / numLatitudinal;
-
-          const p1 = ellipsoidPoint(xNorm1, zNorm1);
-          const p2 = ellipsoidPoint(xNorm2, zNorm1);
-          const p3 = ellipsoidPoint(xNorm2, zNorm2);
-          const p4 = ellipsoidPoint(xNorm1, zNorm2);
-
-          const proj1 = project(p1.x, p1.y, p1.z);
-          const proj2 = project(p2.x, p2.y, p2.z);
-          const proj3 = project(p3.x, p3.y, p3.z);
-          const proj4 = project(p4.x, p4.y, p4.z);
-
-          const avgZ = (proj1.z + proj2.z + proj3.z + proj4.z) / 4;
-          const heightFactor = Math.abs(p1.y + p2.y + p3.y + p4.y) / (4 * tentHeight);
-          
-          ctx.beginPath();
-          ctx.moveTo(proj1.x, proj1.y);
-          ctx.lineTo(proj2.x, proj2.y);
-          ctx.lineTo(proj3.x, proj3.y);
-          ctx.lineTo(proj4.x, proj4.y);
-          ctx.closePath();
-
-          const brightness = 0.7 + heightFactor * 0.3 + (avgZ > 0 ? 0.1 : 0);
-          const red = Math.floor(230 * brightness);
-          const green = Math.floor(60 * brightness);
-          const blue = Math.floor(40 * brightness);
-          ctx.fillStyle = `rgba(${red}, ${green}, ${blue}, 0.9)`;
-          ctx.fill();
-
-          ctx.strokeStyle = `rgba(255, 130, 120, 0.6)`;
-          ctx.lineWidth = 1.5;
-          ctx.stroke();
-        }
-      }
-
-      for (let i = 0; i <= numLongitudinal - 1; i++) {
-        const xNorm = -1 + (2 * i) / (numLongitudinal - 1);
-        
+        const numSegments = 30;
         const arcPoints = [];
-        for (let j = 0; j <= numLatitudinal; j++) {
-          const zNorm = -1 + (2 * j) / numLatitudinal;
-          const p = ellipsoidPoint(xNorm, zNorm);
-          arcPoints.push(project(p.x, p.y, p.z));
+        
+        for (let i = 0; i <= numSegments; i++) {
+          const t = i / numSegments;
+          const angle = -arcAngle + (2 * arcAngle * t);
+          
+          const radius = tentWidth / 2;
+          const zBase = Math.sin(angle) * radius;
+          const yBase = -Math.cos(angle) * tentHeight;
+          
+          arcPoints.push(project(xPos, yBase, zBase));
         }
+
+        const gradient = ctx.createLinearGradient(
+          arcPoints[0].x, arcPoints[0].y,
+          arcPoints[numSegments].x, arcPoints[numSegments].y
+        );
+        gradient.addColorStop(0, `rgba(230, 60, 40, ${0.75 + distFromCenter * 0.15})`);
+        gradient.addColorStop(0.5, `rgba(250, 80, 50, ${0.85 + distFromCenter * 0.1})`);
+        gradient.addColorStop(1, `rgba(230, 60, 40, ${0.75 + distFromCenter * 0.15})`);
 
         ctx.beginPath();
         ctx.moveTo(arcPoints[0].x, arcPoints[0].y);
-        for (let k = 1; k < arcPoints.length; k++) {
-          ctx.lineTo(arcPoints[k].x, arcPoints[k].y);
+        for (let i = 1; i < arcPoints.length; i++) {
+          ctx.lineTo(arcPoints[i].x, arcPoints[i].y);
         }
-        ctx.strokeStyle = 'rgba(255, 140, 130, 0.7)';
-        ctx.lineWidth = 2;
+        ctx.strokeStyle = gradient;
+        ctx.lineWidth = 3;
         ctx.stroke();
+
+        if (arcIdx > 0 && arcIdx < numArcs - 1) {
+          const topWindowAngle = 0;
+          const topZ = Math.sin(topWindowAngle) * (tentWidth / 2);
+          const topY = -Math.cos(topWindowAngle) * tentHeight * 0.9;
+          const topProj = project(xPos, topY, topZ);
+          
+          ctx.beginPath();
+          ctx.arc(topProj.x, topProj.y, 6, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+          ctx.fill();
+          ctx.strokeStyle = 'rgba(255, 255, 255, 1)';
+          ctx.lineWidth = 2;
+          ctx.stroke();
+
+          const sideAngles = [-arcAngle * 0.6, arcAngle * 0.6];
+          for (const sideAngle of sideAngles) {
+            const sideZ = Math.sin(sideAngle) * (tentWidth / 2);
+            const sideY = -Math.cos(sideAngle) * tentHeight * 0.7;
+            const sideProj = project(xPos, sideY, sideZ);
+            
+            ctx.beginPath();
+            ctx.ellipse(sideProj.x, sideProj.y, 8, 16, 0, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+            ctx.fill();
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+          }
+
+          const bottomAngles = [-arcAngle * 0.4, 0, arcAngle * 0.4];
+          for (const bottomAngle of bottomAngles) {
+            const bottomZ = Math.sin(bottomAngle) * (tentWidth / 2);
+            const bottomY = -Math.cos(bottomAngle) * tentHeight * 0.35;
+            const bottomProj = project(xPos, bottomY, bottomZ);
+            
+            ctx.beginPath();
+            ctx.arc(bottomProj.x, bottomProj.y, 5, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+            ctx.fill();
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+          }
+        }
       }
 
-      for (let i = 1; i < numLongitudinal - 1; i++) {
-        const xNorm = -1 + (2 * i) / (numLongitudinal - 1);
+      const fabricSegments = 20;
+      for (let i = 0; i < numArcs - 1; i++) {
+        const x1 = -tentLength / 2 + i * arcSpacing;
+        const x2 = -tentLength / 2 + (i + 1) * arcSpacing;
         
-        const topWindow = ellipsoidPoint(xNorm, 0);
-        const topProj = project(topWindow.x, topWindow.y * 0.9, topWindow.z);
-        ctx.beginPath();
-        ctx.arc(topProj.x, topProj.y, 5, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
-        ctx.fill();
-        ctx.strokeStyle = 'rgba(255, 255, 255, 1)';
-        ctx.lineWidth = 1.5;
-        ctx.stroke();
+        const distFromCenter1 = Math.abs(x1) / (tentLength / 2);
+        const distFromCenter2 = Math.abs(x2) / (tentLength / 2);
+        const arcAngle1 = (1 - distFromCenter1) * (Math.PI / 2.5);
+        const arcAngle2 = (1 - distFromCenter2) * (Math.PI / 2.5);
 
-        const sideWindows = [-0.6, 0.6];
-        for (const zNorm of sideWindows) {
-          const sideWindow = ellipsoidPoint(xNorm, zNorm);
-          const sideProj = project(sideWindow.x, sideWindow.y * 0.85, sideWindow.z);
-          ctx.beginPath();
-          ctx.ellipse(sideProj.x, sideProj.y, 7, 15, 0, 0, Math.PI * 2);
-          ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
-          ctx.fill();
-          ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)';
-          ctx.lineWidth = 1.5;
-          ctx.stroke();
-        }
+        for (let j = 0; j < fabricSegments; j++) {
+          const t1 = j / fabricSegments;
+          const t2 = (j + 1) / fabricSegments;
+          
+          const angle1 = -arcAngle1 + (2 * arcAngle1 * t1);
+          const angle2 = -arcAngle1 + (2 * arcAngle1 * t2);
+          const angle3 = -arcAngle2 + (2 * arcAngle2 * t2);
+          const angle4 = -arcAngle2 + (2 * arcAngle2 * t1);
 
-        const bottomWindows = [-0.4, 0, 0.4];
-        for (const zNorm of bottomWindows) {
-          const bottomWindow = ellipsoidPoint(xNorm, zNorm);
-          const bottomProj = project(bottomWindow.x, bottomWindow.y * 0.5, bottomWindow.z);
+          const p1 = project(x1, -Math.cos(angle1) * tentHeight, Math.sin(angle1) * (tentWidth / 2));
+          const p2 = project(x1, -Math.cos(angle2) * tentHeight, Math.sin(angle2) * (tentWidth / 2));
+          const p3 = project(x2, -Math.cos(angle3) * tentHeight, Math.sin(angle3) * (tentWidth / 2));
+          const p4 = project(x2, -Math.cos(angle4) * tentHeight, Math.sin(angle4) * (tentWidth / 2));
+
           ctx.beginPath();
-          ctx.arc(bottomProj.x, bottomProj.y, 4, 0, Math.PI * 2);
-          ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+          ctx.moveTo(p1.x, p1.y);
+          ctx.lineTo(p2.x, p2.y);
+          ctx.lineTo(p3.x, p3.y);
+          ctx.lineTo(p4.x, p4.y);
+          ctx.closePath();
+
+          const avgDist = (distFromCenter1 + distFromCenter2) / 2;
+          const brightness = 0.65 + (1 - avgDist) * 0.25;
+          ctx.fillStyle = `rgba(${200 * brightness}, ${50 * brightness}, ${35 * brightness}, 0.4)`;
           ctx.fill();
-          ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
-          ctx.lineWidth = 1.5;
+          
+          ctx.strokeStyle = 'rgba(255, 150, 140, 0.2)';
+          ctx.lineWidth = 0.5;
           ctx.stroke();
         }
       }
