@@ -54,24 +54,46 @@ const TentViewer3D = () => {
       };
 
       const numArcs = 13;
-      const arcSpacing = tentLength / (numArcs - 1);
+      const numLongitudinal = 30;
 
-      const fabricSegments = 30;
+      const getArcWidthScale = (xPos: number) => {
+        const xNorm = xPos / (tentLength / 2);
+        return Math.sqrt(1 - xNorm * xNorm);
+      };
+
       for (let i = 0; i < numArcs - 1; i++) {
-        const x1 = -tentLength / 2 + i * arcSpacing;
-        const x2 = -tentLength / 2 + (i + 1) * arcSpacing;
+        const t1 = i / (numArcs - 1);
+        const t2 = (i + 1) / (numArcs - 1);
+        
+        const xNorm1 = t1 * 2 - 1;
+        const xNorm2 = t2 * 2 - 1;
+        
+        const x1 = xNorm1 * (tentLength / 2);
+        const x2 = xNorm2 * (tentLength / 2);
+        
+        const widthScale1 = getArcWidthScale(x1);
+        const widthScale2 = getArcWidthScale(x2);
 
-        for (let j = 0; j < fabricSegments; j++) {
-          const t1 = j / fabricSegments;
-          const t2 = (j + 1) / fabricSegments;
-          
-          const angle1 = Math.PI * t1;
-          const angle2 = Math.PI * t2;
+        for (let j = 0; j < numLongitudinal; j++) {
+          const angle1 = (j / numLongitudinal) * Math.PI;
+          const angle2 = ((j + 1) / numLongitudinal) * Math.PI;
 
-          const p1 = project(x1, -Math.sin(angle1) * tentHeight, Math.cos(angle1) * (tentWidth / 2));
-          const p2 = project(x1, -Math.sin(angle2) * tentHeight, Math.cos(angle2) * (tentWidth / 2));
-          const p3 = project(x2, -Math.sin(angle2) * tentHeight, Math.cos(angle2) * (tentWidth / 2));
-          const p4 = project(x2, -Math.sin(angle1) * tentHeight, Math.cos(angle1) * (tentWidth / 2));
+          const z1_1 = Math.cos(angle1) * (tentWidth / 2) * widthScale1;
+          const y1 = -Math.sin(angle1) * tentHeight * widthScale1;
+
+          const z2_1 = Math.cos(angle2) * (tentWidth / 2) * widthScale1;
+          const y2 = -Math.sin(angle2) * tentHeight * widthScale1;
+
+          const z1_2 = Math.cos(angle1) * (tentWidth / 2) * widthScale2;
+          const y1_2 = -Math.sin(angle1) * tentHeight * widthScale2;
+
+          const z2_2 = Math.cos(angle2) * (tentWidth / 2) * widthScale2;
+          const y2_2 = -Math.sin(angle2) * tentHeight * widthScale2;
+
+          const p1 = project(x1, y1, z1_1);
+          const p2 = project(x1, y2, z2_1);
+          const p3 = project(x2, y2_2, z2_2);
+          const p4 = project(x2, y1_2, z1_2);
 
           ctx.beginPath();
           ctx.moveTo(p1.x, p1.y);
@@ -80,7 +102,7 @@ const TentViewer3D = () => {
           ctx.lineTo(p4.x, p4.y);
           ctx.closePath();
 
-          const heightFactor = Math.sin((angle1 + angle2) / 2);
+          const heightFactor = (Math.sin(angle1) + Math.sin(angle2)) / 2;
           const brightness = 0.7 + heightFactor * 0.25;
           const red = Math.floor(230 * brightness);
           const green = Math.floor(65 * brightness);
@@ -95,17 +117,19 @@ const TentViewer3D = () => {
       }
 
       for (let arcIdx = 0; arcIdx < numArcs; arcIdx++) {
-        const xPos = -tentLength / 2 + arcIdx * arcSpacing;
+        const t = arcIdx / (numArcs - 1);
+        const xNorm = t * 2 - 1;
+        const xPos = xNorm * (tentLength / 2);
+        const widthScale = getArcWidthScale(xPos);
         
         const arcPoints = [];
         const numSegments = 40;
         
         for (let i = 0; i <= numSegments; i++) {
-          const t = i / numSegments;
-          const angle = Math.PI * t;
+          const angle = (i / numSegments) * Math.PI;
           
-          const zPos = Math.cos(angle) * (tentWidth / 2);
-          const yPos = -Math.sin(angle) * tentHeight;
+          const zPos = Math.cos(angle) * (tentWidth / 2) * widthScale;
+          const yPos = -Math.sin(angle) * tentHeight * widthScale;
           
           arcPoints.push(project(xPos, yPos, zPos));
         }
@@ -130,12 +154,15 @@ const TentViewer3D = () => {
       ];
 
       for (let sectionIdx = 0; sectionIdx < numArcs - 1; sectionIdx++) {
-        const xMid = -tentLength / 2 + (sectionIdx + 0.5) * arcSpacing;
+        const t = (sectionIdx + 0.5) / (numArcs - 1);
+        const xNorm = t * 2 - 1;
+        const xMid = xNorm * (tentLength / 2);
+        const widthScale = getArcWidthScale(xMid);
 
         for (const win of windowPositions) {
           const angle = Math.PI * win.angleRatio;
-          const zPos = Math.cos(angle) * (tentWidth / 2) * 0.95;
-          const yPos = -Math.sin(angle) * tentHeight * win.heightOffset;
+          const zPos = Math.cos(angle) * (tentWidth / 2) * widthScale * 0.95;
+          const yPos = -Math.sin(angle) * tentHeight * widthScale * win.heightOffset;
           
           const windowProj = project(xMid, yPos, zPos);
 
