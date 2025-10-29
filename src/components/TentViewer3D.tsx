@@ -107,10 +107,10 @@ const TentViewer3D = () => {
           const red = Math.floor(230 * brightness);
           const green = Math.floor(65 * brightness);
           const blue = Math.floor(45 * brightness);
-          ctx.fillStyle = `rgba(${red}, ${green}, ${blue}, 0.85)`;
+          ctx.fillStyle = `rgb(${red}, ${green}, ${blue})`;
           ctx.fill();
           
-          ctx.strokeStyle = 'rgba(255, 140, 130, 0.3)';
+          ctx.strokeStyle = 'rgba(255, 140, 130, 0.5)';
           ctx.lineWidth = 0.5;
           ctx.stroke();
         }
@@ -145,12 +145,12 @@ const TentViewer3D = () => {
       }
 
       const windowRows = [
-        { angleRatio: 0.5, heightOffset: 0.95, width: 12, height: 12 },
-        { angleRatio: 0.35, heightOffset: 0.8, width: 14, height: 28 },
-        { angleRatio: 0.65, heightOffset: 0.8, width: 14, height: 28 },
-        { angleRatio: 0.25, heightOffset: 0.5, width: 10, height: 10 },
-        { angleRatio: 0.5, heightOffset: 0.5, width: 10, height: 10 },
-        { angleRatio: 0.75, heightOffset: 0.5, width: 10, height: 10 }
+        { angleRatio: 0.5, heightOffset: 0.95, radius: 7, type: 'circle' },
+        { angleRatio: 0.35, heightOffset: 0.8, radiusX: 9, radiusY: 16, type: 'ellipse' },
+        { angleRatio: 0.65, heightOffset: 0.8, radiusX: 9, radiusY: 16, type: 'ellipse' },
+        { angleRatio: 0.25, heightOffset: 0.5, radius: 6, type: 'circle' },
+        { angleRatio: 0.5, heightOffset: 0.5, radius: 6, type: 'circle' },
+        { angleRatio: 0.75, heightOffset: 0.5, radius: 6, type: 'circle' }
       ];
 
       for (let sectionIdx = 0; sectionIdx < numArcs - 1; sectionIdx++) {
@@ -164,12 +164,6 @@ const TentViewer3D = () => {
           const zCenter = Math.cos(angle) * (tentWidth / 2) * widthScale * 0.98;
           const yCenter = -Math.sin(angle) * tentHeight * widthScale * win.heightOffset;
           
-          const normal = {
-            x: 0,
-            y: -Math.sin(angle),
-            z: Math.cos(angle)
-          };
-          
           const tangentX = { x: 1, y: 0, z: 0 };
           const tangentY = {
             x: 0,
@@ -177,29 +171,42 @@ const TentViewer3D = () => {
             z: -Math.sin(angle)
           };
           
-          const corners = [
-            { dx: -win.width / 2, dy: -win.height / 2 },
-            { dx: win.width / 2, dy: -win.height / 2 },
-            { dx: win.width / 2, dy: win.height / 2 },
-            { dx: -win.width / 2, dy: win.height / 2 }
-          ];
+          const segments = 20;
+          const points = [];
           
-          const projectedCorners = corners.map(c => {
-            const x = xMid + c.dx * tangentX.x + c.dy * tangentY.x;
-            const y = yCenter + c.dx * tangentX.y + c.dy * tangentY.y;
-            const z = zCenter + c.dx * tangentX.z + c.dy * tangentY.z;
-            return project(x, y, z);
-          });
+          if (win.type === 'circle') {
+            for (let i = 0; i <= segments; i++) {
+              const circleAngle = (i / segments) * Math.PI * 2;
+              const dx = Math.cos(circleAngle) * win.radius!;
+              const dy = Math.sin(circleAngle) * win.radius!;
+              
+              const x = xMid + dx * tangentX.x + dy * tangentY.x;
+              const y = yCenter + dx * tangentX.y + dy * tangentY.y;
+              const z = zCenter + dx * tangentX.z + dy * tangentY.z;
+              points.push(project(x, y, z));
+            }
+          } else {
+            for (let i = 0; i <= segments; i++) {
+              const ellipseAngle = (i / segments) * Math.PI * 2;
+              const dx = Math.cos(ellipseAngle) * win.radiusX!;
+              const dy = Math.sin(ellipseAngle) * win.radiusY!;
+              
+              const x = xMid + dx * tangentX.x + dy * tangentY.x;
+              const y = yCenter + dx * tangentX.y + dy * tangentY.y;
+              const z = zCenter + dx * tangentX.z + dy * tangentY.z;
+              points.push(project(x, y, z));
+            }
+          }
           
           ctx.beginPath();
-          ctx.moveTo(projectedCorners[0].x, projectedCorners[0].y);
-          for (let i = 1; i < projectedCorners.length; i++) {
-            ctx.lineTo(projectedCorners[i].x, projectedCorners[i].y);
+          ctx.moveTo(points[0].x, points[0].y);
+          for (let i = 1; i < points.length; i++) {
+            ctx.lineTo(points[i].x, points[i].y);
           }
           ctx.closePath();
-          ctx.fillStyle = 'rgba(180, 220, 255, 0.7)';
+          ctx.fillStyle = 'rgba(180, 220, 255, 0.85)';
           ctx.fill();
-          ctx.strokeStyle = 'rgba(100, 150, 200, 0.9)';
+          ctx.strokeStyle = 'rgba(100, 150, 200, 1)';
           ctx.lineWidth = 2;
           ctx.stroke();
         }
