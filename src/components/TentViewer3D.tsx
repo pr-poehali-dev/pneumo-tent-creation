@@ -180,6 +180,40 @@ const TentViewer3D = () => {
         }
       }
 
+      const windowRows = [
+        { zAngleFactor: 0, yHeightFactor: 0.9, radius: 6 },
+        { zAngleFactor: 0.55, yHeightFactor: 0.7, radius: 8, ellipse: true },
+        { zAngleFactor: -0.55, yHeightFactor: 0.7, radius: 8, ellipse: true },
+        { zAngleFactor: 0.35, yHeightFactor: 0.4, radius: 5 },
+        { zAngleFactor: -0.35, yHeightFactor: 0.4, radius: 5 },
+        { zAngleFactor: 0, yHeightFactor: 0.4, radius: 5 }
+      ];
+
+      for (let arcIdx = 1; arcIdx < numArcs - 1; arcIdx++) {
+        const xPos = -tentLength / 2 + arcIdx * arcSpacing;
+        const distFromCenter = Math.abs(xPos) / (tentLength / 2);
+        const arcAngle = (1 - distFromCenter) * (Math.PI / 2.5);
+
+        for (const row of windowRows) {
+          const angle = arcAngle * row.zAngleFactor;
+          const zPos = Math.sin(angle) * (tentWidth / 2);
+          const yPos = -Math.cos(angle) * tentHeight * row.yHeightFactor;
+          const windowProj = project(xPos, yPos, zPos);
+
+          ctx.beginPath();
+          if (row.ellipse) {
+            ctx.ellipse(windowProj.x, windowProj.y, row.radius, row.radius * 2, 0, 0, Math.PI * 2);
+          } else {
+            ctx.arc(windowProj.x, windowProj.y, row.radius, 0, Math.PI * 2);
+          }
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+          ctx.fill();
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)';
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+        }
+      }
+
       ctx.restore();
     };
 
