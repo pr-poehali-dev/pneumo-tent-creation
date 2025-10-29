@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
+import TentViewer3D from '@/components/TentViewer3D';
 
 const Index = () => {
   const { toast } = useToast();
@@ -97,13 +98,11 @@ const Index = () => {
               </div>
             </div>
 
-            <div className="relative animate-float">
+            <div className="relative">
               <div className="absolute inset-0 bg-gradient-to-br from-primary/30 to-secondary/30 rounded-3xl blur-3xl" />
-              <img 
-                src="https://cdn.poehali.dev/files/07c99d32-6e1a-4332-a880-60b6efcbaa00.jpg" 
-                alt="Пневмокаркасный шатёр схема"
-                className="relative z-10 rounded-3xl border border-primary/30 shadow-2xl"
-              />
+              <div className="relative z-10">
+                <TentViewer3D />
+              </div>
             </div>
           </div>
         </div>
