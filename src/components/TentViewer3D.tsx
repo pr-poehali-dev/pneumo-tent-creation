@@ -144,13 +144,13 @@ const TentViewer3D = () => {
         ctx.stroke();
       }
 
-      const windowPositions = [
-        { angleRatio: 0.5, heightOffset: 0.95, size: 6, type: 'circle' },
-        { angleRatio: 0.35, heightOffset: 0.8, size: 8, type: 'ellipse' },
-        { angleRatio: 0.65, heightOffset: 0.8, size: 8, type: 'ellipse' },
-        { angleRatio: 0.25, heightOffset: 0.5, size: 5, type: 'circle' },
-        { angleRatio: 0.5, heightOffset: 0.5, size: 5, type: 'circle' },
-        { angleRatio: 0.75, heightOffset: 0.5, size: 5, type: 'circle' }
+      const windowRows = [
+        { angleRatio: 0.5, heightOffset: 0.95, width: 12, height: 12 },
+        { angleRatio: 0.35, heightOffset: 0.8, width: 14, height: 28 },
+        { angleRatio: 0.65, heightOffset: 0.8, width: 14, height: 28 },
+        { angleRatio: 0.25, heightOffset: 0.5, width: 10, height: 10 },
+        { angleRatio: 0.5, heightOffset: 0.5, width: 10, height: 10 },
+        { angleRatio: 0.75, heightOffset: 0.5, width: 10, height: 10 }
       ];
 
       for (let sectionIdx = 0; sectionIdx < numArcs - 1; sectionIdx++) {
@@ -159,26 +159,90 @@ const TentViewer3D = () => {
         const xMid = xNorm * (tentLength / 2);
         const widthScale = getArcWidthScale(xMid);
 
-        for (const win of windowPositions) {
+        for (const win of windowRows) {
           const angle = Math.PI * win.angleRatio;
-          const zPos = Math.cos(angle) * (tentWidth / 2) * widthScale * 0.95;
-          const yPos = -Math.sin(angle) * tentHeight * widthScale * win.heightOffset;
+          const zCenter = Math.cos(angle) * (tentWidth / 2) * widthScale * 0.98;
+          const yCenter = -Math.sin(angle) * tentHeight * widthScale * win.heightOffset;
           
-          const windowProj = project(xMid, yPos, zPos);
-
+          const normal = {
+            x: 0,
+            y: -Math.sin(angle),
+            z: Math.cos(angle)
+          };
+          
+          const tangentX = { x: 1, y: 0, z: 0 };
+          const tangentY = {
+            x: 0,
+            y: -Math.cos(angle),
+            z: -Math.sin(angle)
+          };
+          
+          const corners = [
+            { dx: -win.width / 2, dy: -win.height / 2 },
+            { dx: win.width / 2, dy: -win.height / 2 },
+            { dx: win.width / 2, dy: win.height / 2 },
+            { dx: -win.width / 2, dy: win.height / 2 }
+          ];
+          
+          const projectedCorners = corners.map(c => {
+            const x = xMid + c.dx * tangentX.x + c.dy * tangentY.x;
+            const y = yCenter + c.dx * tangentX.y + c.dy * tangentY.y;
+            const z = zCenter + c.dx * tangentX.z + c.dy * tangentY.z;
+            return project(x, y, z);
+          });
+          
           ctx.beginPath();
-          if (win.type === 'ellipse') {
-            ctx.ellipse(windowProj.x, windowProj.y, win.size, win.size * 2, 0, 0, Math.PI * 2);
-          } else {
-            ctx.arc(windowProj.x, windowProj.y, win.size, 0, Math.PI * 2);
+          ctx.moveTo(projectedCorners[0].x, projectedCorners[0].y);
+          for (let i = 1; i < projectedCorners.length; i++) {
+            ctx.lineTo(projectedCorners[i].x, projectedCorners[i].y);
           }
-          ctx.fillStyle = 'rgba(255, 255, 255, 0.65)';
+          ctx.closePath();
+          ctx.fillStyle = 'rgba(180, 220, 255, 0.7)';
           ctx.fill();
-          ctx.strokeStyle = 'rgba(255, 255, 255, 0.95)';
-          ctx.lineWidth = 1.5;
+          ctx.strokeStyle = 'rgba(100, 150, 200, 0.9)';
+          ctx.lineWidth = 2;
           ctx.stroke();
         }
       }
+
+      const entranceWidthRatio = 0.6;
+      const entranceHeightRatio = 0.85;
+      const entranceX = tentLength / 2;
+      const widthScaleEntrance = getArcWidthScale(entranceX);
+      
+      const entranceSegments = 30;
+      const entrancePoints = [];
+      
+      for (let i = 0; i <= entranceSegments; i++) {
+        const t = i / entranceSegments;
+        const angle = Math.PI * (0.5 - entranceWidthRatio / 2) + (Math.PI * entranceWidthRatio) * t;
+        
+        if (t === 0 || t === 1) {
+          entrancePoints.push(project(
+            entranceX,
+            0,
+            Math.cos(angle) * (tentWidth / 2) * widthScaleEntrance
+          ));
+        } else {
+          entrancePoints.push(project(
+            entranceX,
+            -Math.sin(angle) * tentHeight * widthScaleEntrance * entranceHeightRatio,
+            Math.cos(angle) * (tentWidth / 2) * widthScaleEntrance
+          ));
+        }
+      }
+      
+      ctx.beginPath();
+      ctx.moveTo(entrancePoints[0].x, entrancePoints[0].y);
+      for (let i = 1; i < entrancePoints.length; i++) {
+        ctx.lineTo(entrancePoints[i].x, entrancePoints[i].y);
+      }
+      ctx.closePath();
+      ctx.fillStyle = 'rgba(40, 40, 60, 0.8)';
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(80, 80, 100, 1)';
+      ctx.lineWidth = 3;
+      ctx.stroke();
 
       ctx.restore();
     };
