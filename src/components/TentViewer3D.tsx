@@ -27,7 +27,7 @@ const TentViewer3D = () => {
       ctx.save();
       ctx.translate(width / 2, height / 2);
 
-      const scale = 6.5;
+      const scale = 13;
       const tentLength = 32 * scale;
       const tentWidth = 16 * scale;
       const tentHeight = 8 * scale;
@@ -60,6 +60,9 @@ const TentViewer3D = () => {
       for (let i = 0; i < numArcs - 1; i++) {
         const x1 = -tentLength / 2 + i * arcSpacing;
         const x2 = -tentLength / 2 + (i + 1) * arcSpacing;
+        
+        const tiltAngle1 = (x1 / (tentLength / 2)) * (Math.PI / 8);
+        const tiltAngle2 = (x2 / (tentLength / 2)) * (Math.PI / 8);
 
         for (let j = 0; j < fabricSegments; j++) {
           const t1 = j / fabricSegments;
@@ -68,10 +71,30 @@ const TentViewer3D = () => {
           const angle1 = Math.PI * t1;
           const angle2 = Math.PI * t2;
 
-          const p1 = project(x1, -Math.sin(angle1) * tentHeight, -Math.cos(angle1) * (tentWidth / 2));
-          const p2 = project(x1, -Math.sin(angle2) * tentHeight, -Math.cos(angle2) * (tentWidth / 2));
-          const p3 = project(x2, -Math.sin(angle2) * tentHeight, -Math.cos(angle2) * (tentWidth / 2));
-          const p4 = project(x2, -Math.sin(angle1) * tentHeight, -Math.cos(angle1) * (tentWidth / 2));
+          const z1Base = -Math.cos(angle1) * (tentWidth / 2);
+          const y1 = -Math.sin(angle1) * tentHeight;
+          const z1 = z1Base * Math.cos(tiltAngle1) - x1 * Math.sin(tiltAngle1);
+          const x1Tilted = z1Base * Math.sin(tiltAngle1) + x1 * Math.cos(tiltAngle1);
+
+          const z2Base = -Math.cos(angle2) * (tentWidth / 2);
+          const y2 = -Math.sin(angle2) * tentHeight;
+          const z2 = z2Base * Math.cos(tiltAngle1) - x1 * Math.sin(tiltAngle1);
+          const x2Tilted_arc1 = z2Base * Math.sin(tiltAngle1) + x1 * Math.cos(tiltAngle1);
+
+          const z3Base = -Math.cos(angle2) * (tentWidth / 2);
+          const y3 = -Math.sin(angle2) * tentHeight;
+          const z3 = z3Base * Math.cos(tiltAngle2) - x2 * Math.sin(tiltAngle2);
+          const x3Tilted = z3Base * Math.sin(tiltAngle2) + x2 * Math.cos(tiltAngle2);
+
+          const z4Base = -Math.cos(angle1) * (tentWidth / 2);
+          const y4 = -Math.sin(angle1) * tentHeight;
+          const z4 = z4Base * Math.cos(tiltAngle2) - x2 * Math.sin(tiltAngle2);
+          const x4Tilted = z4Base * Math.sin(tiltAngle2) + x2 * Math.cos(tiltAngle2);
+
+          const p1 = project(x1Tilted, y1, z1);
+          const p2 = project(x2Tilted_arc1, y2, z2);
+          const p3 = project(x3Tilted, y3, z3);
+          const p4 = project(x4Tilted, y4, z4);
 
           ctx.beginPath();
           ctx.moveTo(p1.x, p1.y);
@@ -96,6 +119,7 @@ const TentViewer3D = () => {
 
       for (let arcIdx = 0; arcIdx < numArcs; arcIdx++) {
         const xPos = -tentLength / 2 + arcIdx * arcSpacing;
+        const tiltAngle = (xPos / (tentLength / 2)) * (Math.PI / 8);
         
         const arcPoints = [];
         const numSegments = 40;
@@ -104,10 +128,13 @@ const TentViewer3D = () => {
           const t = i / numSegments;
           const angle = Math.PI * t;
           
-          const zPos = -Math.cos(angle) * (tentWidth / 2);
+          const zBase = -Math.cos(angle) * (tentWidth / 2);
           const yPos = -Math.sin(angle) * tentHeight;
           
-          arcPoints.push(project(xPos, yPos, zPos));
+          const zTilted = zBase * Math.cos(tiltAngle) - xPos * Math.sin(tiltAngle);
+          const xTilted = zBase * Math.sin(tiltAngle) + xPos * Math.cos(tiltAngle);
+          
+          arcPoints.push(project(xTilted, yPos, zTilted));
         }
 
         ctx.beginPath();
@@ -131,12 +158,17 @@ const TentViewer3D = () => {
 
       for (let sectionIdx = 0; sectionIdx < numArcs - 1; sectionIdx++) {
         const xMid = -tentLength / 2 + (sectionIdx + 0.5) * arcSpacing;
+        const tiltAngleMid = (xMid / (tentLength / 2)) * (Math.PI / 8);
 
         for (const win of windowPositions) {
           const angle = Math.PI * win.angleRatio;
-          const zPos = -Math.cos(angle) * (tentWidth / 2) * 0.95;
+          const zBase = -Math.cos(angle) * (tentWidth / 2) * 0.95;
           const yPos = -Math.sin(angle) * tentHeight * win.heightOffset;
-          const windowProj = project(xMid, yPos, zPos);
+          
+          const zTilted = zBase * Math.cos(tiltAngleMid) - xMid * Math.sin(tiltAngleMid);
+          const xTilted = zBase * Math.sin(tiltAngleMid) + xMid * Math.cos(tiltAngleMid);
+          
+          const windowProj = project(xTilted, yPos, zTilted);
 
           ctx.beginPath();
           if (win.type === 'ellipse') {
@@ -159,7 +191,7 @@ const TentViewer3D = () => {
       if (isRotating && !isDragging) {
         setRotation(prev => ({
           ...prev,
-          y: prev.y + 0.005
+          y: prev.y + 0.0005
         }));
       }
       drawTent(rotation.x, rotation.y);
