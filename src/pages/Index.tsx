@@ -61,7 +61,7 @@ const Index = () => {
         <div className="container mx-auto px-4 relative z-10">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div className="animate-fade-in">
-              <h1 className="font-heading font-bold text-5xl md:text-7xl mb-6 leading-tight">
+              <h1 className="font-heading font-bold md:text-7xl mb-6 leading-tight text-5xl">
                 Пневмокаркасный шатёр
                 <span className="block text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
                   нового поколения
