@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
-import TentViewer3D from '@/components/TentViewer3D';
+
 
 const Index = () => {
   const { toast } = useToast();
@@ -98,10 +98,14 @@ const Index = () => {
               </div>
             </div>
 
-            <div className="relative">
+            <div className="relative animate-fade-in">
               <div className="absolute inset-0 bg-gradient-to-br from-primary/30 to-secondary/30 rounded-3xl blur-3xl" />
               <div className="relative z-10">
-                <TentViewer3D />
+                <img 
+                  src="https://cdn.poehali.dev/projects/fa7b883e-1b4e-4ad1-92fc-9c87e44104f5/files/a3034b21-f399-44b3-99f8-320315f1e798.jpg" 
+                  alt="Пневмокаркасный шатёр" 
+                  className="w-full h-auto rounded-2xl shadow-2xl"
+                />
               </div>
             </div>
           </div>
@@ -131,7 +135,7 @@ const Index = () => {
                 icon: 'Wind',
                 title: 'Пневмокаркас',
                 description: 'Инновационная технология',
-                detail: 'Быстрый монтаж за 2 часа'
+                detail: 'Быстрый монтаж за 1 час'
               },
               {
                 icon: 'Eye',
@@ -202,7 +206,7 @@ const Index = () => {
               {
                 icon: 'Rocket',
                 title: 'Быстрый монтаж',
-                description: 'Установка шатра занимает всего 2 часа, в отличие от 2-3 дней для традиционных конструкций'
+                description: 'Установка шатра занимает всего 1 час, в отличие от 2-3 дней для традиционных конструкций'
               },
               {
                 icon: 'Feather',
