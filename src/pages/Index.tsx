@@ -27,13 +27,13 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
-      <header className="fixed top-0 left-0 right-0 z-50 glass-effect border-b border-border/50">
+      <header className="fixed top-0 left-0 right-0 z-50 glass-effect border-b border-primary/20">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-secondary flex items-center justify-center glow-primary">
               <Icon name="Wind" size={24} className="text-white" />
             </div>
-            <span className="font-heading font-bold text-xl">AeroTent</span>
+            <span className="font-heading font-bold text-xl">AeroTents</span>
           </div>
           <nav className="hidden md:flex items-center gap-6">
             <a href="#features" className="hover:text-primary transition-colors">Характеристики</a>
@@ -49,14 +49,9 @@ const Index = () => {
         </div>
       </header>
 
-      <section className="relative min-h-screen flex items-center justify-center pt-20 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-background to-secondary/20" />
-        <div className="absolute inset-0" style={{
-          backgroundImage: `url(https://cdn.poehali.dev/projects/fa7b883e-1b4e-4ad1-92fc-9c87e44104f5/files/055551dd-eaf2-4d16-ae3c-64801e069037.jpg)`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          opacity: 0.1
-        }} />
+      <section className="relative min-h-screen flex items-center justify-center pt-20 overflow-hidden gradient-mesh">
+        <div className="absolute top-20 left-20 w-96 h-96 bg-primary/10 rounded-full blur-3xl subtle-pulse" />
+        <div className="absolute bottom-20 right-20 w-96 h-96 bg-secondary/10 rounded-full blur-3xl subtle-pulse" style={{animationDelay: '2s'}} />
         
         <div className="container mx-auto px-4 relative z-10">
           <div className="flex flex-col items-center text-center max-w-4xl mx-auto space-y-12">
@@ -88,7 +83,7 @@ const Index = () => {
                   { value: '16м', label: 'Ширина' },
                   { value: '8м', label: 'Высота' }
                 ].map((item, idx) => (
-                  <Card key={idx} className="glass-effect border-primary/30 hover:border-primary transition-colors">
+                  <Card key={idx} className="glass-effect border-primary/30 hover:border-primary/60 hover:glow-primary transition-all duration-300">
                     <CardContent className="p-4 text-center">
                       <div className="text-3xl font-heading font-bold text-primary mb-1">{item.value}</div>
                       <div className="text-sm text-muted-foreground">{item.label}</div>
@@ -99,16 +94,22 @@ const Index = () => {
             </div>
 
             <div className="space-y-8 animate-fade-in w-full">
-              <img 
-                src="https://cdn.poehali.dev/files/93cec548-4268-47e3-a7bd-c494a660828f.jpg" 
-                alt="Пневмокаркасный шатёр вид сбоку" 
-                className="w-full h-auto"
-              />
-              <img 
-                src="https://cdn.poehali.dev/files/1f7fe15d-73c2-4ae3-ad5f-2da31e4878b4.jpg" 
-                alt="Пневмокаркасный шатёр вид сверху" 
-                className="w-full h-auto"
-              />
+              <div className="relative group">
+                <div className="absolute -inset-1 bg-gradient-to-r from-primary to-secondary rounded-2xl opacity-20 blur-lg group-hover:opacity-30 transition duration-500"></div>
+                <img 
+                  src="https://cdn.poehali.dev/files/93cec548-4268-47e3-a7bd-c494a660828f.jpg" 
+                  alt="Пневмокаркасный шатёр вид сбоку" 
+                  className="relative w-full h-auto rounded-2xl"
+                />
+              </div>
+              <div className="relative group">
+                <div className="absolute -inset-1 bg-gradient-to-r from-secondary to-primary rounded-2xl opacity-20 blur-lg group-hover:opacity-30 transition duration-500"></div>
+                <img 
+                  src="https://cdn.poehali.dev/files/1f7fe15d-73c2-4ae3-ad5f-2da31e4878b4.jpg" 
+                  alt="Пневмокаркасный шатёр вид сверху" 
+                  className="relative w-full h-auto rounded-2xl"
+                />
+              </div>
             </div>
           </div>
         </div>
