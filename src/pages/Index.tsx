@@ -97,6 +97,19 @@ const Index = () => {
                 ))}
               </div>
             </div>
+
+            <div className="space-y-8 animate-fade-in">
+              <img 
+                src="https://cdn.poehali.dev/files/93cec548-4268-47e3-a7bd-c494a660828f.jpg" 
+                alt="Пневмокаркасный шатёр вид сбоку" 
+                className="w-full h-auto"
+              />
+              <img 
+                src="https://cdn.poehali.dev/files/1f7fe15d-73c2-4ae3-ad5f-2da31e4878b4.jpg" 
+                alt="Пневмокаркасный шатёр вид сверху" 
+                className="w-full h-auto"
+              />
+            </div>
           </div>
         </div>
       </section>
