@@ -99,21 +99,22 @@ const Index = () => {
             </div>
 
             <div className="relative animate-fade-in">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/30 to-secondary/30 rounded-3xl blur-3xl" />
-              <div className="relative z-10">
-                <img 
-                  src="https://cdn.poehali.dev/projects/fa7b883e-1b4e-4ad1-92fc-9c87e44104f5/files/a3034b21-f399-44b3-99f8-320315f1e798.jpg" 
-                  alt="Пневмокаркасный шатёр" 
-                  className="w-full h-auto rounded-2xl shadow-2xl"
-                />
-              </div>
+              <img 
+                src="https://cdn.poehali.dev/projects/fa7b883e-1b4e-4ad1-92fc-9c87e44104f5/files/055551dd-eaf2-4d16-ae3c-64801e069037.jpg" 
+                alt="Пневмокаркасный шатёр вид сбоку" 
+                className="w-full h-auto drop-shadow-2xl"
+              />
             </div>
           </div>
         </div>
       </section>
 
-      <section id="features" className="py-24 relative">
-        <div className="container mx-auto px-4">
+      <section id="features" className="py-24 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-background to-secondary/10" />
+        <div className="absolute top-20 left-10 w-72 h-72 bg-primary/20 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-secondary/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-r from-primary/5 to-secondary/5 rounded-full blur-3xl" />
+        <div className="container mx-auto px-4 relative z-10">
           <div className="text-center mb-16 animate-fade-in">
             <h2 className="font-heading font-bold text-4xl md:text-5xl mb-4">
               Технические характеристики
