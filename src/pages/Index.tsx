@@ -98,13 +98,11 @@ const Index = () => {
               </div>
             </div>
 
-            <div className="relative animate-fade-in">
-              <img 
-                src="https://cdn.poehali.dev/projects/fa7b883e-1b4e-4ad1-92fc-9c87e44104f5/files/055551dd-eaf2-4d16-ae3c-64801e069037.jpg" 
-                alt="Пневмокаркасный шатёр вид сбоку" 
-                className="w-full h-auto drop-shadow-2xl"
-              />
-            </div>
+            <img 
+              src="https://cdn.poehali.dev/projects/fa7b883e-1b4e-4ad1-92fc-9c87e44104f5/files/055551dd-eaf2-4d16-ae3c-64801e069037.jpg" 
+              alt="Пневмокаркасный шатёр вид сбоку" 
+              className="w-full h-auto"
+            />
           </div>
         </div>
       </section>
