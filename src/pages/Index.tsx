@@ -59,9 +59,9 @@ const Index = () => {
         }} />
         
         <div className="container mx-auto px-4 relative z-10">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
+          <div className="flex flex-col items-center text-center max-w-4xl mx-auto space-y-12">
             <div className="animate-fade-in">
-              <h1 className="font-heading font-bold md:text-7xl leading-tight py-0 my-0 text-6xl">
+              <h1 className="font-heading font-bold text-5xl md:text-7xl mb-6 leading-tight">
                 Пневмокаркасный шатёр
                 <span className="block text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
                   нового поколения
@@ -71,7 +71,7 @@ const Index = () => {
                 Уникальная конструкция размером 32×16×8 метров с прозрачными окнами. 
                 Инновационная технология пневмокаркаса для любых мероприятий.
               </p>
-              <div className="flex flex-wrap gap-4">
+              <div className="flex flex-wrap gap-4 justify-center">
                 <Button size="lg" className="glow-primary">
                   <Icon name="ShoppingCart" size={20} className="mr-2" />
                   Заказать сейчас
@@ -98,7 +98,7 @@ const Index = () => {
               </div>
             </div>
 
-            <div className="space-y-8 animate-fade-in">
+            <div className="space-y-8 animate-fade-in w-full">
               <img 
                 src="https://cdn.poehali.dev/files/93cec548-4268-47e3-a7bd-c494a660828f.jpg" 
                 alt="Пневмокаркасный шатёр вид сбоку" 
